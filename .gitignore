@@ -1,0 +1,16 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VS Code
+.vscode/
+
+# Build
+build/
+
+# Misc
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
