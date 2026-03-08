@@ -201,10 +201,12 @@ void initializeSensors() {
         Serial.println("[ERRO] Falha ao inicializar MPU-6050!");
     }
     
+    /*
     // Inicializa encoders
     encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
     encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
-    
+    */
+
     // Inicializa motores (L9110S - sem pino Enable)
     motors.init(
         MOTOR_LEFT_IA, MOTOR_LEFT_IB,
@@ -257,9 +259,11 @@ void updateSensors() {
     // Atualiza MPU-6050 (filtro complementar)
     mpu.update();
     
+    /*
     // Atualiza cálculo de velocidade dos encoders
     encoderLeft.update();
     encoderRight.update();
+    */
 }
 
 // ============================================================================
@@ -294,7 +298,7 @@ void followLine() {
     motors.setSpeeds(leftSpeed, rightSpeed);
     
     // Debug (descomente para ver valores)
-    // printDebugInfo();
+    printDebugInfo();
 }
 
 void handleLineLost() {
@@ -366,10 +370,12 @@ void printDebugInfo() {
                   qtrSensors.getError(),
                   linePID.getP(), linePID.getI(), linePID.getD());
     
+    /*
     // Encoders (RPM)
     Serial.printf("L:%.1f R:%.1f RPM | ", 
                   encoderLeft.getRPM(), encoderRight.getRPM());
-    
+    */
+   
     // Yaw do giroscópio
     Serial.printf("Yaw:%.1f", mpu.getYaw());
     
