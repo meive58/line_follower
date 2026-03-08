@@ -61,24 +61,23 @@
 #define GEAR_RATIO      100 // Relação de redução do motor N20 (ex: 100:1)
 
 // ============================================================================
-// CONTROLE DOS MOTORES (Driver Ponte H - L298N, TB6612, DRV8833, etc.)
+// CONTROLE DOS MOTORES (Driver Ponte H - L9110S)
 // ============================================================================
+// O L9110S não possui pino Enable. O PWM é aplicado diretamente nos pinos IA/IB
+// Para frente: IA = PWM, IB = LOW
+// Para trás:   IA = LOW, IB = PWM
 
 // Motor Esquerdo
-#define MOTOR_LEFT_EN   0   // PWM do motor esquerdo (Enable) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IN1  3   // Direção 1 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IN2  0  // Direção 2 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IA   3   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IB   0   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Motor Direito
-#define MOTOR_RIGHT_EN  0   // PWM do motor direito (Enable) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IN1 23   // Direção 1 do motor direito - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IN2 1 // Direção 2 do motor direito - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IA  23  // Pino IA do motor direito (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IB  1   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Configurações PWM
 #define PWM_FREQUENCY   20000   // Frequência PWM em Hz (20kHz - fora da faixa audível)
 #define PWM_RESOLUTION  8       // Resolução PWM em bits (8 bits = 0-255)
-#define PWM_CHANNEL_L   0       // Canal LEDC para motor esquerdo
-#define PWM_CHANNEL_R   1       // Canal LEDC para motor direito
 
 // ============================================================================
 // BOTÕES E LEDs (Opcional)

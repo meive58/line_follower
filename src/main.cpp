@@ -8,7 +8,7 @@
  * - Encoders de quadratura para motores N20
  * - Motores DC N20 com ponte H
  * 
- * @author Meive
+ * @author [Seu Nome]
  * @date 2026
  */
 
@@ -16,7 +16,7 @@
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
-//#include "encoder.h"
+#include "encoder.h"
 #include "motor_driver.h"
 #include "pid_controller.h"
 
@@ -202,15 +202,15 @@ void initializeSensors() {
     }
     
     // Inicializa encoders
-    //encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
-    //encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
+    encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
+    encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
     
-    // Inicializa motores
-    /*motors.init(
-        MOTOR_LEFT_EN, MOTOR_LEFT_IN1, MOTOR_LEFT_IN2,
-        MOTOR_RIGHT_EN, MOTOR_RIGHT_IN1, MOTOR_RIGHT_IN2,
+    // Inicializa motores (L9110S - sem pino Enable)
+    motors.init(
+        MOTOR_LEFT_IA, MOTOR_LEFT_IB,
+        MOTOR_RIGHT_IA, MOTOR_RIGHT_IB,
         PWM_FREQUENCY, PWM_RESOLUTION
-    );*/
+    );
     
     // Inicializa controlador PID
     linePID.init(PID_KP, PID_KI, PID_KD);
@@ -258,8 +258,8 @@ void updateSensors() {
     mpu.update();
     
     // Atualiza cálculo de velocidade dos encoders
-    //encoderLeft.update();
-    //encoderRight.update();
+    encoderLeft.update();
+    encoderRight.update();
 }
 
 // ============================================================================
@@ -268,7 +268,7 @@ void updateSensors() {
 
 void followLine() {
     // Lê posição da linha
-    uint16_t position = qtrSensors.readLinePositionWhite();
+    uint16_t position = qtrSensors.readLinePosition();
     
     // Verifica se perdeu a linha
     if (qtrSensors.isLineLost()) {
@@ -281,7 +281,7 @@ void followLine() {
     
     // Calcula correção PID
     float correction = linePID.compute(error);
-    /*
+    
     // Aplica correção às velocidades dos motores
     int16_t leftSpeed = BASE_SPEED + correction;
     int16_t rightSpeed = BASE_SPEED - correction;
@@ -292,9 +292,9 @@ void followLine() {
     
     // Define velocidades dos motores
     motors.setSpeeds(leftSpeed, rightSpeed);
-    */
+    
     // Debug (descomente para ver valores)
-    printDebugInfo();
+    // printDebugInfo();
 }
 
 void handleLineLost() {
@@ -307,14 +307,14 @@ void handleLineLost() {
         lastKnownDirection = qtrSensors.getError();
         Serial.println("[WARN] Linha perdida!");
     }
-    /*
+    
     // Tenta recuperar girando na última direção conhecida
     if (lastKnownDirection < 0) {
         motors.setSpeeds(-80, 80); // Gira para esquerda
     } else {
         motors.setSpeeds(80, -80); // Gira para direita
     }
-    */
+    
     // Verifica se encontrou a linha
     if (!qtrSensors.isLineLost()) {
         Serial.println("[INFO] Linha recuperada!");
@@ -326,7 +326,7 @@ void handleLineLost() {
     // Timeout - desiste após 3 segundos
     if (millis() - lostTime > 3000) {
         Serial.println("[ERRO] Timeout - parando o robô");
-        //motors.brake();
+        motors.brake();
         currentState = STATE_IDLE;
         lostTime = 0;
     }
@@ -367,8 +367,8 @@ void printDebugInfo() {
                   linePID.getP(), linePID.getI(), linePID.getD());
     
     // Encoders (RPM)
-    //Serial.printf("L:%.1f R:%.1f RPM | ", 
-    //              encoderLeft.getRPM(), encoderRight.getRPM());
+    Serial.printf("L:%.1f R:%.1f RPM | ", 
+                  encoderLeft.getRPM(), encoderRight.getRPM());
     
     // Yaw do giroscópio
     Serial.printf("Yaw:%.1f", mpu.getYaw());

@@ -24,18 +24,16 @@ public:
     MotorDriver();
 
     /**
-     * @brief Inicializa os drivers dos motores
-     * @param leftEn Pino PWM do motor esquerdo
-     * @param leftIn1 Pino IN1 do motor esquerdo
-     * @param leftIn2 Pino IN2 do motor esquerdo
-     * @param rightEn Pino PWM do motor direito
-     * @param rightIn1 Pino IN1 do motor direito
-     * @param rightIn2 Pino IN2 do motor direito
+     * @brief Inicializa os drivers dos motores (L9110S)
+     * @param leftIA Pino IA do motor esquerdo (PWM frente)
+     * @param leftIB Pino IB do motor esquerdo (PWM trás)
+     * @param rightIA Pino IA do motor direito (PWM frente)
+     * @param rightIB Pino IB do motor direito (PWM trás)
      * @param pwmFreq Frequência PWM em Hz
      * @param pwmResolution Resolução PWM em bits
      */
-    void init(uint8_t leftEn, uint8_t leftIn1, uint8_t leftIn2,
-              uint8_t rightEn, uint8_t rightIn1, uint8_t rightIn2,
+    void init(uint8_t leftIA, uint8_t leftIB,
+              uint8_t rightIA, uint8_t rightIB,
               uint32_t pwmFreq = 20000, uint8_t pwmResolution = 8);
 
     /**
@@ -118,13 +116,15 @@ public:
     void setMaxSpeed(uint8_t maxSpeed);
 
 private:
-    // Pinos
-    uint8_t _leftEn, _leftIn1, _leftIn2;
-    uint8_t _rightEn, _rightIn1, _rightIn2;
+    // Pinos (L9110S: IA e IB por motor)
+    uint8_t _leftIA, _leftIB;
+    uint8_t _rightIA, _rightIB;
     
-    // Canais PWM LEDC
-    uint8_t _leftChannel;
-    uint8_t _rightChannel;
+    // Canais PWM LEDC (2 por motor para L9110S)
+    uint8_t _leftChannelA;   // Canal PWM para IA esquerdo (frente)
+    uint8_t _leftChannelB;   // Canal PWM para IB esquerdo (trás)
+    uint8_t _rightChannelA;  // Canal PWM para IA direito (frente)
+    uint8_t _rightChannelB;  // Canal PWM para IB direito (trás)
     
     // Configurações
     uint8_t _pwmResolution;
@@ -133,7 +133,7 @@ private:
     uint8_t _maxSpeed;
     
     // Funções auxiliares
-    void setMotor(uint8_t channel, uint8_t in1, uint8_t in2, int16_t speed);
+    void setMotor(uint8_t channelA, uint8_t channelB, int16_t speed);
 };
 
 #endif // MOTOR_DRIVER_H
