@@ -22,16 +22,16 @@
 // Conecte os pinos de saída digital do QTR-8A aos pinos abaixo
 // Ordem: Sensor mais à ESQUERDA até o mais à DIREITA do robô
 
-#define QTR_SENSOR_0    0   // Sensor 1 (extrema esquerda) - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_1    0   // Sensor 2 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_2    0   // Sensor 3 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_3    0   // Sensor 4 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_4    0   // Sensor 5 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_5    0   // Sensor 6 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_6    0   // Sensor 7 - ALTERE CONFORME NECESSÁRIO
-#define QTR_SENSOR_7    0   // Sensor 8 (extrema direita) - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_0    13   // Sensor 1 (extrema esquerda) - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_1    12   // Sensor 2 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_2    14   // Sensor 3 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_3    27   // Sensor 4 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_4    26   // Sensor 5 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_5    25   // Sensor 6 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_6    33   // Sensor 7 - ALTERE CONFORME NECESSÁRIO
+#define QTR_SENSOR_7    32   // Sensor 8 (extrema direita) - ALTERE CONFORME NECESSÁRIO
 
-#define QTR_EMITTER_PIN 0   // Pino de controle do LED IR (opcional, -1 se não usar)
+#define QTR_EMITTER_PIN 0  // Pino de controle do LED IR (opcional, -1 se não usar)
 
 // ============================================================================
 // GIROSCÓPIO/ACELERÔMETRO MPU-6050
@@ -40,7 +40,7 @@
 
 #define MPU_SDA_PIN     21  // Pino SDA (padrão ESP32: GPIO 21) - ALTERE CONFORME NECESSÁRIO
 #define MPU_SCL_PIN     22  // Pino SCL (padrão ESP32: GPIO 22) - ALTERE CONFORME NECESSÁRIO
-#define MPU_INT_PIN     0   // Pino de interrupção (opcional, -1 se não usar) - ALTERE CONFORME NECESSÁRIO
+#define MPU_INT_PIN     -1   // Pino de interrupção (opcional, -1 se não usar) - ALTERE CONFORME NECESSÁRIO
 
 // Endereço I2C do MPU-6050 (0x68 se AD0=LOW, 0x69 se AD0=HIGH)
 #define MPU_I2C_ADDRESS 0x68
@@ -50,11 +50,11 @@
 // ============================================================================
 // Use pinos com suporte a interrupção para melhor precisão
 
-#define ENCODER_LEFT_A  0   // Canal A do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
-#define ENCODER_LEFT_B  0   // Canal B do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_LEFT_A  0  // Canal A do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_LEFT_B  5   // Canal B do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
 
-#define ENCODER_RIGHT_A 0   // Canal A do encoder direito - ALTERE CONFORME NECESSÁRIO
-#define ENCODER_RIGHT_B 0   // Canal B do encoder direito - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_RIGHT_A 39   // Canal A do encoder direito - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_RIGHT_B 36  // Canal B do encoder direito - ALTERE CONFORME NECESSÁRIO
 
 // Pulsos por revolução do encoder (ajuste conforme seu encoder)
 #define ENCODER_PPR     7   // Pulsos por revolução (típico para N20: 7 ou 11)
@@ -66,13 +66,13 @@
 
 // Motor Esquerdo
 #define MOTOR_LEFT_EN   0   // PWM do motor esquerdo (Enable) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IN1  0   // Direção 1 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IN2  0   // Direção 2 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IN1  3   // Direção 1 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IN2  0  // Direção 2 do motor esquerdo - ALTERE CONFORME NECESSÁRIO
 
 // Motor Direito
 #define MOTOR_RIGHT_EN  0   // PWM do motor direito (Enable) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IN1 0   // Direção 1 do motor direito - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IN2 0   // Direção 2 do motor direito - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IN1 23   // Direção 1 do motor direito - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IN2 1 // Direção 2 do motor direito - ALTERE CONFORME NECESSÁRIO
 
 // Configurações PWM
 #define PWM_FREQUENCY   20000   // Frequência PWM em Hz (20kHz - fora da faixa audível)
@@ -84,14 +84,14 @@
 // BOTÕES E LEDs (Opcional)
 // ============================================================================
 
-#define BUTTON_START    0   // Botão de início - ALTERE CONFORME NECESSÁRIO
-#define BUTTON_CALIB    0   // Botão de calibração - ALTERE CONFORME NECESSÁRIO
-#define LED_STATUS      2   // LED de status (GPIO 2 = LED onboard) - ALTERE CONFORME NECESSÁRIO
+#define BUTTON_START    19   // Botão de início - ALTERE CONFORME NECESSÁRIO
+#define BUTTON_CALIB    18 // Botão de calibração - ALTERE CONFORME NECESSÁRIO
+#define LED_STATUS      2 // LED de status (GPIO 2 = LED onboard) - ALTERE CONFORME NECESSÁRIO
 
 // ============================================================================
 // BUZZER (Opcional)
 // ============================================================================
 
-#define BUZZER_PIN      0   // Pino do buzzer - ALTERE CONFORME NECESSÁRIO
+//#define BUZZER_PIN      0   // Pino do buzzer - ALTERE CONFORME NECESSÁRIO
 
 #endif // PIN_CONFIG_H

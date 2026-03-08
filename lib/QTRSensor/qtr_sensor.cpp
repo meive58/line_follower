@@ -14,7 +14,7 @@ void QTRSensorArray::init(const uint8_t* pins, int8_t emitterPin) {
     _qtr.setTypeRC();
     _qtr.setSensorPins(pins, QTR_SENSOR_COUNT);
     
-    if (emitterPin >= 0) {
+    if (emitterPin > 0) {
         _qtr.setEmitterPin(emitterPin);
     }
     
