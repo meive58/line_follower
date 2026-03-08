@@ -17,7 +17,7 @@
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
-////#include "encoder.h"
+//#include "encoder.h"
 #include "motor_driver.h"
 #include "pid_controller.h"
 
@@ -292,7 +292,7 @@ void followLine() {
     motors.setSpeeds(leftSpeed, rightSpeed);
     
     // Debug (descomente para ver valores)
-    printDebugInfo();
+    // printDebugInfo();
 }
 
 void handleLineLost() {
