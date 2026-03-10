@@ -13,6 +13,7 @@
  */
 
 #include <Arduino.h>
+#include <BluetoothSerial.h>
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
@@ -54,6 +55,7 @@ MPU6050Sensor mpu;
 //Encoder encoderRight;
 MotorDriver motors;
 PIDController linePID;
+BluetoothSerial SerialBT;
 
 // Estado atual do robô
 RobotState currentState = STATE_IDLE;
@@ -71,6 +73,7 @@ void updateSensors();
 void followLine();
 void handleLineLost();
 void printDebugInfo();
+void processBluetoothCommands();
 
 // ============================================================================
 // SETUP
@@ -89,18 +92,23 @@ void setup() {
     pinMode(LED_STATUS, OUTPUT);
     digitalWrite(LED_STATUS, LOW);
     
-    // Configura botões
-    pinMode(BUTTON_START, INPUT_PULLUP);
-    pinMode(BUTTON_CALIB, INPUT_PULLUP);
+    // Inicializa Bluetooth
+    SerialBT.begin("LineFollower_ESP32");
+    Serial.println("[BT] Bluetooth iniciado: LineFollower_ESP32");
     
     // Inicializa todos os sensores e atuadores
     initializeSensors();
     
     Serial.println();
     Serial.println("[SISTEMA] Pronto!");
-    Serial.println("[SISTEMA] Pressione CALIB para calibrar");
-    Serial.println("[SISTEMA] Pressione START para iniciar");
+    Serial.println("[BT] Comandos disponiveis:");
+    Serial.println("[BT]   C - Calibrar sensores");
+    Serial.println("[BT]   S - Iniciar (Start)");
+    Serial.println("[BT]   P - Parar (Stop)");
     Serial.println();
+    
+    SerialBT.println("LineFollower Pronto!");
+    SerialBT.println("Comandos: C=Calibrar, S=Start, P=Parar");
     
     currentState = STATE_IDLE;
 }
@@ -110,37 +118,8 @@ void setup() {
 // ============================================================================
 
 void loop() {
-    // Verifica botão de calibração
-    if (digitalRead(BUTTON_CALIB) == LOW && currentState == STATE_IDLE) {
-        delay(50); // Debounce
-        if (digitalRead(BUTTON_CALIB) == LOW) {
-            calibrateSensors();
-        }
-        while (digitalRead(BUTTON_CALIB) == LOW); // Aguarda soltar
-    }
-    
-    // Verifica botão de início
-    if (digitalRead(BUTTON_START) == LOW && currentState == STATE_IDLE) {
-        delay(50); // Debounce
-        if (digitalRead(BUTTON_START) == LOW) {
-            if (qtrSensors.isCalibrated()) {
-                Serial.println("[SISTEMA] Iniciando em 3 segundos...");
-                for (int i = 3; i > 0; i--) {
-                    Serial.printf("[SISTEMA] %d...\n", i);
-                    digitalWrite(LED_STATUS, HIGH);
-                    delay(500);
-                    digitalWrite(LED_STATUS, LOW);
-                    delay(500);
-                }
-                Serial.println("[SISTEMA] GO!");
-                currentState = STATE_RUNNING;
-                linePID.reset();
-            } else {
-                Serial.println("[ERRO] Calibre os sensores primeiro!");
-            }
-        }
-        while (digitalRead(BUTTON_START) == LOW); // Aguarda soltar
-    }
+    // Processa comandos Bluetooth
+    processBluetoothCommands();
     
     // Loop de controle com intervalo fixo
     unsigned long now = millis();
@@ -374,4 +353,76 @@ void printDebugInfo() {
     Serial.printf("Yaw:%.1f", mpu.getYaw());
     
     Serial.println();
+}
+
+// ============================================================================
+// FUNÇÕES DE COMUNICAÇÃO BLUETOOTH
+// ============================================================================
+
+void processBluetoothCommands() {
+    if (SerialBT.available()) {
+        char cmd = SerialBT.read();
+        
+        switch (cmd) {
+            case 'C':
+            case 'c':
+                // Comando de calibração
+                if (currentState == STATE_IDLE) {
+                    SerialBT.println("[BT] Iniciando calibracao...");
+                    calibrateSensors();
+                    SerialBT.println("[BT] Calibracao concluida!");
+                } else {
+                    SerialBT.println("[BT] Erro: Pare o robo primeiro (P)");
+                }
+                break;
+                
+            case 'S':
+            case 's':
+                // Comando de iniciar
+                if (currentState == STATE_IDLE) {
+                    if (qtrSensors.isCalibrated()) {
+                        SerialBT.println("[BT] Iniciando em 3 segundos...");
+                        Serial.println("[SISTEMA] Iniciando em 3 segundos...");
+                        for (int i = 3; i > 0; i--) {
+                            Serial.printf("[SISTEMA] %d...\n", i);
+                            SerialBT.printf("%d...\n", i);
+                            digitalWrite(LED_STATUS, HIGH);
+                            delay(500);
+                            digitalWrite(LED_STATUS, LOW);
+                            delay(500);
+                        }
+                        Serial.println("[SISTEMA] GO!");
+                        SerialBT.println("[BT] GO!");
+                        currentState = STATE_RUNNING;
+                        linePID.reset();
+                    } else {
+                        Serial.println("[ERRO] Calibre os sensores primeiro!");
+                        SerialBT.println("[BT] Erro: Calibre primeiro (C)");
+                    }
+                } else {
+                    SerialBT.println("[BT] Erro: Robo ja em execucao");
+                }
+                break;
+                
+            case 'P':
+            case 'p':
+                // Comando de parar
+                motors.brake();
+                currentState = STATE_IDLE;
+                linePID.reset();
+                Serial.println("[SISTEMA] Parado pelo usuario");
+                SerialBT.println("[BT] Robo parado!");
+                break;
+                
+            case 'D':
+            case 'd':
+                // Comando de debug - imprime informações
+                printDebugInfo();
+                break;
+                
+            default:
+                // Ignora outros caracteres (como \n, \r)
+                break;
+        }
+    }
 }
