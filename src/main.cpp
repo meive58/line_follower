@@ -17,7 +17,7 @@
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
-//#include "encoder.h"
+////#include "encoder.h"
 #include "motor_driver.h"
 #include "pid_controller.h"
 
@@ -50,7 +50,7 @@ enum RobotState {
 // ============================================================================
 
 QTRSensorArray qtrSensors;
-//MPU6050Sensor mpu;
+////MPU6050Sensor mpu;
 //Encoder encoderLeft;
 //Encoder encoderRight;
 MotorDriver motors;
@@ -195,6 +195,7 @@ void initializeSensors() {
     encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
     encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
     */
+    */
     // Inicializa motores (L9110S - sem pino Enable)
     motors.init(
         MOTOR_LEFT_IA, MOTOR_LEFT_IB,
@@ -221,6 +222,7 @@ void calibrateSensors() {
     
     // Pisca LED durante calibração
     digitalWrite(LED_STATUS, HIGH);
+    /*
     /*
     // Calibra giroscópio (manter parado)
     Serial.println("\n[CALIB] Mantenha o robô IMÓVEL...");
