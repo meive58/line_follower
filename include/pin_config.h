@@ -31,7 +31,7 @@
 #define QTR_SENSOR_6    33   // Sensor 7 - ALTERE CONFORME NECESSÁRIO
 #define QTR_SENSOR_7    32   // Sensor 8 (extrema direita) - ALTERE CONFORME NECESSÁRIO
 
-#define QTR_EMITTER_PIN 0  // Pino de controle do LED IR (opcional, -1 se não usar)
+#define QTR_EMITTER_PIN -1  // Pino de controle do LED IR (opcional, -1 se não usar)
 
 // ============================================================================
 // GIROSCÓPIO/ACELERÔMETRO MPU-6050
@@ -68,12 +68,12 @@
 // Para trás:   IA = LOW, IB = PWM
 
 // Motor Esquerdo
-#define MOTOR_LEFT_IA   3   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IB   0   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IA   15   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IB   4   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Motor Direito
 #define MOTOR_RIGHT_IA  23  // Pino IA do motor direito (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IB  1   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IB  5   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Configurações PWM
 #define PWM_FREQUENCY   20000   // Frequência PWM em Hz (20kHz - fora da faixa audível)

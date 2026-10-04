@@ -17,7 +17,7 @@
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
-#include "encoder.h"
+//#include "encoder.h"
 #include "motor_driver.h"
 #include "pid_controller.h"
 
@@ -50,7 +50,7 @@ enum RobotState {
 // ============================================================================
 
 QTRSensorArray qtrSensors;
-MPU6050Sensor mpu;
+//MPU6050Sensor mpu;
 //Encoder encoderLeft;
 //Encoder encoderRight;
 MotorDriver motors;
@@ -98,6 +98,7 @@ void setup() {
     
     // Inicializa todos os sensores e atuadores
     initializeSensors();
+    motors.brake();
     
     Serial.println();
     Serial.println("[SISTEMA] Pronto!");
@@ -174,7 +175,7 @@ void initializeSensors() {
     
     // Inicializa sensores QTR-8
     qtrSensors.init(qtrPins, QTR_EMITTER_PIN);
-    
+    /*
     // Inicializa MPU-6050
     if (!mpu.init(MPU_SDA_PIN, MPU_SCL_PIN, MPU_I2C_ADDRESS)) {
         Serial.println("[ERRO] Falha ao inicializar MPU-6050!");
@@ -183,12 +184,13 @@ void initializeSensors() {
     // Inicializa encoders
     encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
     encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
-    
+    */
     // Inicializa motores (L9110S - sem pino Enable)
     motors.init(
         MOTOR_LEFT_IA, MOTOR_LEFT_IB,
         MOTOR_RIGHT_IA, MOTOR_RIGHT_IB,
         PWM_FREQUENCY, PWM_RESOLUTION
+        
     );
     
     // Inicializa controlador PID
@@ -209,12 +211,12 @@ void calibrateSensors() {
     
     // Pisca LED durante calibração
     digitalWrite(LED_STATUS, HIGH);
-    
+    /*
     // Calibra giroscópio (manter parado)
     Serial.println("\n[CALIB] Mantenha o robô IMÓVEL...");
     delay(2000);
     mpu.calibrateGyro(500);
-    
+    */
     // Calibra sensores de linha (mover sobre a linha)
     Serial.println("\n[CALIB] Mova o robô sobre a linha...");
     delay(1000);
@@ -234,11 +236,12 @@ void calibrateSensors() {
 
 void updateSensors() {
     // Atualiza MPU-6050 (filtro complementar)
-    mpu.update();
-    
+    //mpu.update();
+    /*
     // Atualiza cálculo de velocidade dos encoders
     encoderLeft.update();
     encoderRight.update();
+    */
 }
 
 // ============================================================================
@@ -273,7 +276,7 @@ void followLine() {
     motors.setSpeeds(leftSpeed, rightSpeed);
     
     // Debug (descomente para ver valores)
-    // printDebugInfo();
+    printDebugInfo();
 }
 
 void handleLineLost() {
@@ -344,14 +347,14 @@ void printDebugInfo() {
     Serial.printf("Err:%5d | P:%.1f I:%.1f D:%.1f | ", 
                   qtrSensors.getError(),
                   linePID.getP(), linePID.getI(), linePID.getD());
-    
+    /*
     // Encoders (RPM)
     Serial.printf("L:%.1f R:%.1f RPM | ", 
                   encoderLeft.getRPM(), encoderRight.getRPM());
     
     // Yaw do giroscópio
     Serial.printf("Yaw:%.1f", mpu.getYaw());
-    
+    */
     Serial.println();
 }
 
