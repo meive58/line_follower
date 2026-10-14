@@ -8,11 +8,12 @@
  * - Encoders de quadratura para motores N20
  * - Motores DC N20 com ponte H
  * 
- * @author Meive
+ * @author [Seu Nome]
  * @date 2026
  */
 
 #include <Arduino.h>
+#include <BluetoothSerial.h>
 #include "pin_config.h"
 #include "qtr_sensor.h"
 #include "mpu6050.h"
@@ -49,17 +50,22 @@ enum RobotState {
 // ============================================================================
 
 QTRSensorArray qtrSensors;
-MPU6050Sensor mpu;
+//MPU6050Sensor mpu;
 //Encoder encoderLeft;
 //Encoder encoderRight;
 MotorDriver motors;
 PIDController linePID;
+BluetoothSerial SerialBT;
 
 // Estado atual do robô
 RobotState currentState = STATE_IDLE;
 
 // Variáveis de controle
 unsigned long lastUpdateTime = 0;
+
+// Lateral sensors
+uint16_t lateralRightSensor = 0;  // Right lateral IR sensor value (GPIO 35)
+uint16_t lateralLeftSensor = 0;   // Left lateral IR sensor value (GPIO 36)
 
 // ============================================================================
 // PROTÓTIPOS DE FUNÇÕES
@@ -71,6 +77,7 @@ void updateSensors();
 void followLine();
 void handleLineLost();
 void printDebugInfo();
+void processBluetoothCommands();
 
 // ============================================================================
 // SETUP
@@ -89,18 +96,24 @@ void setup() {
     pinMode(LED_STATUS, OUTPUT);
     digitalWrite(LED_STATUS, LOW);
     
-    // Configura botões
-    pinMode(BUTTON_START, INPUT_PULLUP);
-    pinMode(BUTTON_CALIB, INPUT_PULLUP);
+    // Inicializa Bluetooth
+    SerialBT.begin("LineFollower_ESP32");
+    Serial.println("[BT] Bluetooth iniciado: LineFollower_ESP32");
     
     // Inicializa todos os sensores e atuadores
     initializeSensors();
+    motors.brake();
     
     Serial.println();
     Serial.println("[SISTEMA] Pronto!");
-    Serial.println("[SISTEMA] Pressione CALIB para calibrar");
-    Serial.println("[SISTEMA] Pressione START para iniciar");
+    Serial.println("[BT] Comandos disponiveis:");
+    Serial.println("[BT]   C - Calibrar sensores");
+    Serial.println("[BT]   S - Iniciar (Start)");
+    Serial.println("[BT]   P - Parar (Stop)");
     Serial.println();
+    
+    SerialBT.println("LineFollower Pronto!");
+    SerialBT.println("Comandos: C=Calibrar, S=Start, P=Parar");
     
     currentState = STATE_IDLE;
 }
@@ -110,37 +123,8 @@ void setup() {
 // ============================================================================
 
 void loop() {
-    // Verifica botão de calibração
-    if (digitalRead(BUTTON_CALIB) == LOW && currentState == STATE_IDLE) {
-        delay(50); // Debounce
-        if (digitalRead(BUTTON_CALIB) == LOW) {
-            calibrateSensors();
-        }
-        while (digitalRead(BUTTON_CALIB) == LOW); // Aguarda soltar
-    }
-    
-    // Verifica botão de início
-    if (digitalRead(BUTTON_START) == LOW && currentState == STATE_IDLE) {
-        delay(50); // Debounce
-        if (digitalRead(BUTTON_START) == LOW) {
-            if (qtrSensors.isCalibrated()) {
-                Serial.println("[SISTEMA] Iniciando em 3 segundos...");
-                for (int i = 3; i > 0; i--) {
-                    Serial.printf("[SISTEMA] %d...\n", i);
-                    digitalWrite(LED_STATUS, HIGH);
-                    delay(500);
-                    digitalWrite(LED_STATUS, LOW);
-                    delay(500);
-                }
-                Serial.println("[SISTEMA] GO!");
-                currentState = STATE_RUNNING;
-                linePID.reset();
-            } else {
-                Serial.println("[ERRO] Calibre os sensores primeiro!");
-            }
-        }
-        while (digitalRead(BUTTON_START) == LOW); // Aguarda soltar
-    }
+    // Processa comandos Bluetooth
+    processBluetoothCommands();
     
     // Loop de controle com intervalo fixo
     unsigned long now = millis();
@@ -195,22 +179,29 @@ void initializeSensors() {
     
     // Inicializa sensores QTR-8
     qtrSensors.init(qtrPins, QTR_EMITTER_PIN);
-    
+
+    // Initializa sensores QTR laterais
+    pinMode(SENSOR_LATERAL_RIGHT, INPUT);
+    pinMode(SENSOR_LATERAL_LEFT, INPUT);
+    Serial.println("[INIT] Sensor lateral configurado (GPIO 35 and 36)");
+
+    /*
     // Inicializa MPU-6050
     if (!mpu.init(MPU_SDA_PIN, MPU_SCL_PIN, MPU_I2C_ADDRESS)) {
         Serial.println("[ERRO] Falha ao inicializar MPU-6050!");
     }
     
     // Inicializa encoders
-    //encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
-    //encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
-    
-    // Inicializa motores
-    /*motors.init(
-        MOTOR_LEFT_EN, MOTOR_LEFT_IN1, MOTOR_LEFT_IN2,
-        MOTOR_RIGHT_EN, MOTOR_RIGHT_IN1, MOTOR_RIGHT_IN2,
+    encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
+    encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
+    */
+    // Inicializa motores (L9110S - sem pino Enable)
+    motors.init(
+        MOTOR_LEFT_IA, MOTOR_LEFT_IB,
+        MOTOR_RIGHT_IA, MOTOR_RIGHT_IB,
         PWM_FREQUENCY, PWM_RESOLUTION
-    );*/
+        
+    );
     
     // Inicializa controlador PID
     linePID.init(PID_KP, PID_KI, PID_KD);
@@ -230,12 +221,12 @@ void calibrateSensors() {
     
     // Pisca LED durante calibração
     digitalWrite(LED_STATUS, HIGH);
-    
+    /*
     // Calibra giroscópio (manter parado)
     Serial.println("\n[CALIB] Mantenha o robô IMÓVEL...");
     delay(2000);
     mpu.calibrateGyro(500);
-    
+    */
     // Calibra sensores de linha (mover sobre a linha)
     Serial.println("\n[CALIB] Mova o robô sobre a linha...");
     delay(1000);
@@ -255,11 +246,16 @@ void calibrateSensors() {
 
 void updateSensors() {
     // Atualiza MPU-6050 (filtro complementar)
-    mpu.update();
-    
+    //mpu.update();
+    /*
     // Atualiza cálculo de velocidade dos encoders
-    //encoderLeft.update();
-    //encoderRight.update();
+    encoderLeft.update();
+    encoderRight.update();
+    */
+    
+    // Read lateral sensor values
+    lateralRightSensor = analogRead(SENSOR_LATERAL_RIGHT);
+    lateralLeftSensor = analogRead(SENSOR_LATERAL_LEFT);
 }
 
 // ============================================================================
@@ -268,7 +264,7 @@ void updateSensors() {
 
 void followLine() {
     // Lê posição da linha
-    uint16_t position = qtrSensors.readLinePositionWhite();
+    uint16_t position = qtrSensors.readLinePosition();
     
     // Verifica se perdeu a linha
     if (qtrSensors.isLineLost()) {
@@ -281,7 +277,7 @@ void followLine() {
     
     // Calcula correção PID
     float correction = linePID.compute(error);
-    /*
+    
     // Aplica correção às velocidades dos motores
     int16_t leftSpeed = BASE_SPEED + correction;
     int16_t rightSpeed = BASE_SPEED - correction;
@@ -292,7 +288,7 @@ void followLine() {
     
     // Define velocidades dos motores
     motors.setSpeeds(leftSpeed, rightSpeed);
-    */
+    
     // Debug (descomente para ver valores)
     printDebugInfo();
 }
@@ -307,14 +303,14 @@ void handleLineLost() {
         lastKnownDirection = qtrSensors.getError();
         Serial.println("[WARN] Linha perdida!");
     }
-    /*
+    
     // Tenta recuperar girando na última direção conhecida
     if (lastKnownDirection < 0) {
         motors.setSpeeds(-80, 80); // Gira para esquerda
     } else {
         motors.setSpeeds(80, -80); // Gira para direita
     }
-    */
+    
     // Verifica se encontrou a linha
     if (!qtrSensors.isLineLost()) {
         Serial.println("[INFO] Linha recuperada!");
@@ -326,7 +322,7 @@ void handleLineLost() {
     // Timeout - desiste após 3 segundos
     if (millis() - lostTime > 3000) {
         Serial.println("[ERRO] Timeout - parando o robô");
-        //motors.brake();
+        motors.brake();
         currentState = STATE_IDLE;
         lostTime = 0;
     }
@@ -366,12 +362,88 @@ void printDebugInfo() {
                   qtrSensors.getError(),
                   linePID.getP(), linePID.getI(), linePID.getD());
     
+    // Lateral sensors (debug)
+    Serial.printf("LR:%4d LL:%4d", 
+                  lateralRightSensor, lateralLeftSensor);
+    /*
     // Encoders (RPM)
-    //Serial.printf("L:%.1f R:%.1f RPM | ", 
-    //              encoderLeft.getRPM(), encoderRight.getRPM());
+    Serial.printf("L:%.1f R:%.1f RPM | ", 
+                  encoderLeft.getRPM(), encoderRight.getRPM());
     
     // Yaw do giroscópio
     Serial.printf("Yaw:%.1f", mpu.getYaw());
-    
+    */
     Serial.println();
+}
+
+// ============================================================================
+// FUNÇÕES DE COMUNICAÇÃO BLUETOOTH
+// ============================================================================
+
+void processBluetoothCommands() {
+    if (SerialBT.available()) {
+        char cmd = SerialBT.read();
+        
+        switch (cmd) {
+            case 'C':
+            case 'c':
+                // Comando de calibração
+                if (currentState == STATE_IDLE) {
+                    SerialBT.println("[BT] Iniciando calibracao...");
+                    calibrateSensors();
+                    SerialBT.println("[BT] Calibracao concluida!");
+                } else {
+                    SerialBT.println("[BT] Erro: Pare o robo primeiro (P)");
+                }
+                break;
+                
+            case 'S':
+            case 's':
+                // Comando de iniciar
+                if (currentState == STATE_IDLE) {
+                    if (qtrSensors.isCalibrated()) {
+                        SerialBT.println("[BT] Iniciando em 3 segundos...");
+                        Serial.println("[SISTEMA] Iniciando em 3 segundos...");
+                        for (int i = 3; i > 0; i--) {
+                            Serial.printf("[SISTEMA] %d...\n", i);
+                            SerialBT.printf("%d...\n", i);
+                            digitalWrite(LED_STATUS, HIGH);
+                            delay(500);
+                            digitalWrite(LED_STATUS, LOW);
+                            delay(500);
+                        }
+                        Serial.println("[SISTEMA] GO!");
+                        SerialBT.println("[BT] GO!");
+                        currentState = STATE_RUNNING;
+                        linePID.reset();
+                    } else {
+                        Serial.println("[ERRO] Calibre os sensores primeiro!");
+                        SerialBT.println("[BT] Erro: Calibre primeiro (C)");
+                    }
+                } else {
+                    SerialBT.println("[BT] Erro: Robo ja em execucao");
+                }
+                break;
+                
+            case 'P':
+            case 'p':
+                // Comando de parar
+                motors.brake();
+                currentState = STATE_IDLE;
+                linePID.reset();
+                Serial.println("[SISTEMA] Parado pelo usuario");
+                SerialBT.println("[BT] Robo parado!");
+                break;
+                
+            case 'D':
+            case 'd':
+                // Comando de debug - imprime informações
+                printDebugInfo();
+                break;
+                
+            default:
+                // Ignora outros caracteres (como \n, \r)
+                break;
+        }
+    }
 }
