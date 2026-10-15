@@ -195,7 +195,7 @@ void initializeSensors() {
     encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
     encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
     */
-    */
+
     // Inicializa motores (L9110S - sem pino Enable)
     motors.init(
         MOTOR_LEFT_IA, MOTOR_LEFT_IB,
@@ -292,7 +292,7 @@ void followLine() {
     motors.setSpeeds(leftSpeed, rightSpeed);
     
     // Debug (descomente para ver valores)
-    // printDebugInfo();
+    printDebugInfo();
 }
 
 void handleLineLost() {
@@ -364,9 +364,18 @@ void printDebugInfo() {
                   qtrSensors.getError(),
                   linePID.getP(), linePID.getI(), linePID.getD());
     
-    // Lateral sensors (debug)
-    Serial.printf("LR:%4d LL:%4d", 
-                  lateralRightSensor, lateralLeftSensor);
+    // Sensores laterais
+    if (lateralRightSensor > 500) {
+            Serial.print("LR: #");
+        } else {
+            Serial.print("LR: _");
+        }
+    if (lateralLeftSensor > 500) {
+            Serial.print("LL: #");
+        } else {
+            Serial.print("LL: _");
+        }
+
     /*
     // Encoders (RPM)
     Serial.printf("L:%.1f R:%.1f RPM | ", 
