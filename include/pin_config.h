@@ -38,8 +38,8 @@
 // ============================================================================
 // Sensores para detectar curva, fim e inicio
 
-#define SENSOR_LATERAL_RIGHT  35  // Sensor lateral direita (GPIO 35)
-#define SENSOR_LATERAL_LEFT   36  // Sensor lateral esquerda (GPIO 36)
+#define SENSOR_LATERAL_RIGHT  36  // Sensor lateral direita (GPIO 35)
+#define SENSOR_LATERAL_LEFT   35  // Sensor lateral esquerda (GPIO 36)
 
 // ============================================================================
 // GIROSCÓPIO/ACELERÔMETRO MPU-6050

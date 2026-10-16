@@ -8,7 +8,7 @@
  * - Encoders de quadratura para motores N20
  * - Motores DC N20 com ponte H
  * 
- * @author [Seu Nome]
+ * @author Meive
  * @date 2026
  */
 
@@ -50,7 +50,7 @@ enum RobotState {
 // ============================================================================
 
 QTRSensorArray qtrSensors;
-////MPU6050Sensor mpu;
+MPU6050Sensor mpu;
 //Encoder encoderLeft;
 //Encoder encoderRight;
 MotorDriver motors;
@@ -185,12 +185,12 @@ void initializeSensors() {
     pinMode(SENSOR_LATERAL_LEFT, INPUT);
     Serial.println("[INIT] Sensor lateral configurado (GPIO 35 and 36)");
 
-    /*
+    
     // Inicializa MPU-6050
     if (!mpu.init(MPU_SDA_PIN, MPU_SCL_PIN, MPU_I2C_ADDRESS)) {
         Serial.println("[ERRO] Falha ao inicializar MPU-6050!");
     }
-    
+    /*
     // Inicializa encoders
     encoderLeft.init(ENCODER_LEFT_A, ENCODER_LEFT_B, ENCODER_PPR, GEAR_RATIO, 0);
     encoderRight.init(ENCODER_RIGHT_A, ENCODER_RIGHT_B, ENCODER_PPR, GEAR_RATIO, 1);
@@ -219,25 +219,29 @@ void calibrateSensors() {
     currentState = STATE_CALIBRATING;
     
     Serial.println("\n========== CALIBRAÇÃO ==========");
+    SerialBT.println("\n========== CALIBRAÇÃO ==========");
     
     // Pisca LED durante calibração
     digitalWrite(LED_STATUS, HIGH);
-    /*
-    /*
+
     // Calibra giroscópio (manter parado)
     Serial.println("\n[CALIB] Mantenha o robô IMÓVEL...");
+    SerialBT.println("\n[CALIB] Mantenha o robô IMÓVEL...");
     delay(2000);
     mpu.calibrateGyro(500);
-    */
+
     // Calibra sensores de linha (mover sobre a linha)
     Serial.println("\n[CALIB] Mova o robô sobre a linha...");
+    SerialBT.println("\n[CALIB] Mova o robô sobre a linha...");
     delay(1000);
     qtrSensors.calibrate();
     
     digitalWrite(LED_STATUS, LOW);
     
     Serial.println("\n[CALIB] Calibração concluída!");
+    SerialBT.println("\n[CALIB] Calibração concluída!");
     Serial.println("================================\n");
+    SerialBT.println("================================\n");
     
     currentState = STATE_IDLE;
 }
@@ -248,7 +252,7 @@ void calibrateSensors() {
 
 void updateSensors() {
     // Atualiza MPU-6050 (filtro complementar)
-    //mpu.update();
+    mpu.update();
     /*
     // Atualiza cálculo de velocidade dos encoders
     encoderLeft.update();
@@ -350,14 +354,17 @@ void printDebugInfo() {
         // Threshold de 500 para considerar "sobre a linha"
         if (sensorValues[i] > 500) {
             Serial.print("#");  // Sensor detectando linha (nível alto)
+            SerialBT.println("#");
         } else {
             Serial.print("_");  // Sensor fora da linha (nível baixo)
+            SerialBT.println("_");
         }
     }
     Serial.print("] | ");
     
     // Posição da linha
     Serial.printf("Pos:%4d | ", qtrSensors.getLastPosition());
+    SerialBT.printf("Pos:%4d |", qtrSensors.getLastPosition());
     
     // Erro e PID
     Serial.printf("Err:%5d | P:%.1f I:%.1f D:%.1f | ", 
@@ -367,24 +374,30 @@ void printDebugInfo() {
     // Sensores laterais
     if (lateralRightSensor > 500) {
             Serial.print("LR: #");
+            SerialBT.print("LR: #");
         } else {
             Serial.print("LR: _");
+            SerialBT.print("LR: _");
         }
     if (lateralLeftSensor > 500) {
             Serial.print("LL: #");
+            SerialBT.print("LL: #");
         } else {
             Serial.print("LL: _");
+            SerialBT.print("LL: _");
         }
 
     /*
     // Encoders (RPM)
     Serial.printf("L:%.1f R:%.1f RPM | ", 
                   encoderLeft.getRPM(), encoderRight.getRPM());
-    
+    */
     // Yaw do giroscópio
     Serial.printf("Yaw:%.1f", mpu.getYaw());
-    */
+    SerialBT.printf("Yaw:%.1f", mpu.getYaw());
+    
     Serial.println();
+    SerialBT.println();
 }
 
 // ============================================================================
