@@ -60,6 +60,7 @@ bool MPU6050Sensor::isConnected() {
     
     // Verifica WHO_AM_I (deve retornar 0x68)
     uint8_t whoAmI = readRegister(MPU6050_REG_WHO_AM_I);
+    Serial.printf("[MPU6050] WHO_AM_I = 0x%02X\n", whoAmI);
     return (whoAmI == 0x68 || whoAmI == 0x72); // 0x72 para alguns clones
 }
 
@@ -128,6 +129,8 @@ float MPU6050Sensor::readTemperature() {
 }
 
 void MPU6050Sensor::update() {
+    if (!_initialized) return;
+
     // Calcula delta time
     unsigned long now = micros();
     float dt = (now - _lastUpdate) / 1000000.0f;
