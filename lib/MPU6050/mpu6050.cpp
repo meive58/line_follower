@@ -26,6 +26,16 @@ bool MPU6050Sensor::init(uint8_t sdaPin, uint8_t sclPin, uint8_t address) {
     // Verifica conexão
     if (!isConnected()) {
         Serial.println("[MPU6050] Sensor não encontrado!");
+        Serial.println("[MPU6050] Varrendo barramento I2C...");
+        uint8_t found = 0;
+        for (uint8_t addr = 1; addr < 127; addr++) {
+            Wire.beginTransmission(addr);
+            if (Wire.endTransmission() == 0) {
+                Serial.printf("[MPU6050]   Dispositivo em 0x%02X\n", addr);
+                found++;
+            }
+        }
+        if (found == 0) Serial.println("[MPU6050]   Nenhum dispositivo I2C respondeu");
         return false;
     }
     
