@@ -21,7 +21,7 @@ bool MPU6050Sensor::init(uint8_t sdaPin, uint8_t sclPin, uint8_t address) {
     
     // Inicializa I2C com pinos customizados
     Wire.begin(sdaPin, sclPin);
-    Wire.setClock(400000); // 400kHz Fast Mode
+    Wire.setClock(100000); // 100kHz Fast Mode
     
     // Verifica conexão
     if (!isConnected()) {

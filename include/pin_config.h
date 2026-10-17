@@ -46,8 +46,8 @@
 // ============================================================================
 // Comunicação I2C - Use os pinos padrão ou configure customizados
 
-#define MPU_SDA_PIN     21  // Pino SDA (padrão ESP32: GPIO 21) - ALTERE CONFORME NECESSÁRIO
-#define MPU_SCL_PIN     22  // Pino SCL (padrão ESP32: GPIO 22) - ALTERE CONFORME NECESSÁRIO
+#define MPU_SDA_PIN     22 // Pino SDA (padrão ESP32: GPIO 21) - ALTERE CONFORME NECESSÁRIO
+#define MPU_SCL_PIN     21  // Pino SCL (padrão ESP32: GPIO 22) - ALTERE CONFORME NECESSÁRIO
 #define MPU_INT_PIN     -1   // Pino de interrupção (opcional, -1 se não usar) - ALTERE CONFORME NECESSÁRIO
 
 // Endereço I2C do MPU-6050 (0x68 se AD0=LOW, 0x69 se AD0=HIGH)

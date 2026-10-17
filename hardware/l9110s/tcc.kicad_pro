@@ -532,7 +532,12 @@
       "+7.5V": "7V4",
       "BAT": "7V4"
     },
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "5V",
+        "pattern": "MR1"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
