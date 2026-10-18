@@ -46,8 +46,8 @@
 // ============================================================================
 // Comunicação I2C - Use os pinos padrão ou configure customizados
 
-#define MPU_SDA_PIN     22 // Pino SDA (padrão ESP32: GPIO 21) - ALTERE CONFORME NECESSÁRIO
-#define MPU_SCL_PIN     21  // Pino SCL (padrão ESP32: GPIO 22) - ALTERE CONFORME NECESSÁRIO
+#define MPU_SDA_PIN     21 // Pino SDA (padrão ESP32: GPIO 21) - ALTERE CONFORME NECESSÁRIO
+#define MPU_SCL_PIN     22  // Pino SCL (padrão ESP32: GPIO 22) - ALTERE CONFORME NECESSÁRIO
 #define MPU_INT_PIN     -1   // Pino de interrupção (opcional, -1 se não usar) - ALTERE CONFORME NECESSÁRIO
 
 // Endereço I2C do MPU-6050 (0x68 se AD0=LOW, 0x69 se AD0=HIGH)
@@ -58,11 +58,11 @@
 // ============================================================================
 // Use pinos com suporte a interrupção para melhor precisão
 
-#define ENCODER_LEFT_A  0  // Canal A do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
-#define ENCODER_LEFT_B  5   // Canal B do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_LEFT_A  34  // Canal A do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_LEFT_B  16   // Canal B do encoder esquerdo - ALTERE CONFORME NECESSÁRIO
 
 #define ENCODER_RIGHT_A 39   // Canal A do encoder direito - ALTERE CONFORME NECESSÁRIO
-#define ENCODER_RIGHT_B 36  // Canal B do encoder direito - ALTERE CONFORME NECESSÁRIO
+#define ENCODER_RIGHT_B 17  // Canal B do encoder direito - ALTERE CONFORME NECESSÁRIO
 
 // Pulsos por revolução do encoder (ajuste conforme seu encoder)
 #define ENCODER_PPR     7   // Pulsos por revolução (típico para N20: 7 ou 11)
@@ -76,12 +76,12 @@
 // Para trás:   IA = LOW, IB = PWM
 
 // Motor Esquerdo
-#define MOTOR_LEFT_IA   15   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IB   4   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IA   4   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IB   15   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Motor Direito
-#define MOTOR_RIGHT_IA  23  // Pino IA do motor direito (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IB  5   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IA  5  // Pino IA do motor direito (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IB  23   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Configurações PWM
 #define PWM_FREQUENCY   20000   // Frequência PWM em Hz (20kHz - fora da faixa audível)
@@ -91,8 +91,8 @@
 // BOTÕES E LEDs (Opcional)
 // ============================================================================
 
-#define BUTTON_START    19   // Botão de início - ALTERE CONFORME NECESSÁRIO
-#define BUTTON_CALIB    18 // Botão de calibração - ALTERE CONFORME NECESSÁRIO
+//#define BUTTON_START    19   // Botão de início - ALTERE CONFORME NECESSÁRIO
+//#define BUTTON_CALIB    18 // Botão de calibração - ALTERE CONFORME NECESSÁRIO
 #define LED_STATUS      2 // LED de status (GPIO 2 = LED onboard) - ALTERE CONFORME NECESSÁRIO
 
 // ============================================================================
@@ -101,4 +101,4 @@
 
 //#define BUZZER_PIN      0   // Pino do buzzer - ALTERE CONFORME NECESSÁRIO
 
-#endif // PIN_CONFIG_H
+#endif // PIN_CONFIG
