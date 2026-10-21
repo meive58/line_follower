@@ -20,6 +20,7 @@
 #include "encoder.h"
 #include "motor_driver.h"
 #include "pid_controller.h"
+#include "track_mapper.h"
 
 // ============================================================================
 // CONSTANTES E CONFIGURAÇÕES
@@ -36,11 +37,15 @@
 // Intervalo de atualização em ms
 #define UPDATE_INTERVAL_MS  5
 
+// Diâmetro da roda em mm
+#define WHEEL_DIAMETER_MM   22.0f
+
 // Estados do robô
 enum RobotState {
     STATE_IDLE,         // Parado, aguardando comando
     STATE_CALIBRATING,  // Calibrando sensores
     STATE_RUNNING,      // Seguindo linha
+    STATE_MAPPING,      // Seguindo linha e mapeando a pista
     STATE_LOST,         // Linha perdida
     STATE_FINISHED      // Fim do percurso
 };
@@ -55,10 +60,14 @@ Encoder encoderLeft;
 Encoder encoderRight;
 MotorDriver motors;
 PIDController linePID;
+TrackMapper trackMapper;
 BluetoothSerial SerialBT;
 
 // Estado atual do robô
 RobotState currentState = STATE_IDLE;
+
+// Estado ao qual retornar quando a linha for recuperada
+RobotState stateBeforeLost = STATE_RUNNING;
 
 // Variáveis de controle
 unsigned long lastUpdateTime = 0;
@@ -78,6 +87,7 @@ void followLine();
 void handleLineLost();
 void printDebugInfo();
 void processBluetoothCommands();
+void startCountdown();
 
 // ============================================================================
 // SETUP
@@ -109,11 +119,13 @@ void setup() {
     Serial.println("[BT] Comandos disponiveis:");
     Serial.println("[BT]   C - Calibrar sensores");
     Serial.println("[BT]   S - Iniciar (Start)");
+    Serial.println("[BT]   T - Iniciar com mapeamento da pista");
+    Serial.println("[BT]   M - Enviar mapa da pista");
     Serial.println("[BT]   P - Parar (Stop)");
     Serial.println();
     
     SerialBT.println("LineFollower Pronto!");
-    SerialBT.println("Comandos: C=Calibrar, S=Start, P=Parar");
+    SerialBT.println("Comandos: C=Calibrar, S=Start, T=Mapear, M=Mapa, P=Parar");
     
     currentState = STATE_IDLE;
 }
@@ -146,6 +158,12 @@ void loop() {
                 // LED aceso
                 digitalWrite(LED_STATUS, HIGH);
                 followLine();
+                break;
+                
+            case STATE_MAPPING:
+                digitalWrite(LED_STATUS, HIGH);
+                followLine();
+                trackMapper.update();
                 break;
                 
             case STATE_LOST:
@@ -208,6 +226,9 @@ void initializeSensors() {
     // Inicializa controlador PID
     linePID.init(PID_KP, PID_KI, PID_KD);
     linePID.setOutputLimits(-255, 255);
+
+    // Inicializa mapeamento da pista
+    trackMapper.init(&encoderLeft, &encoderRight, &mpu, WHEEL_DIAMETER_MM);
 
     Serial.println("[INIT] Sensores inicializados!");
 }
@@ -296,6 +317,7 @@ void followLine() {
     
     // Verifica se perdeu a linha
     if (qtrSensors.isLineLost()) {
+        stateBeforeLost = currentState;
         currentState = STATE_LOST;
         return;
     }
@@ -342,7 +364,7 @@ void handleLineLost() {
     // Verifica se encontrou a linha
     if (!qtrSensors.isLineLost()) {
         Serial.println("[INFO] Linha recuperada!");
-        currentState = STATE_RUNNING;
+        currentState = stateBeforeLost;
         lostTime = 0;
         return;
     }
@@ -431,6 +453,21 @@ void printDebugInfo() {
 // FUNÇÕES DE COMUNICAÇÃO BLUETOOTH
 // ============================================================================
 
+void startCountdown() {
+    SerialBT.println("[BT] Iniciando em 3 segundos...");
+    Serial.println("[SISTEMA] Iniciando em 3 segundos...");
+    for (int i = 3; i > 0; i--) {
+        Serial.printf("[SISTEMA] %d...\n", i);
+        SerialBT.printf("%d...\n", i);
+        digitalWrite(LED_STATUS, HIGH);
+        delay(500);
+        digitalWrite(LED_STATUS, LOW);
+        delay(500);
+    }
+    Serial.println("[SISTEMA] GO!");
+    SerialBT.println("[BT] GO!");
+}
+
 void processBluetoothCommands() {
     if (SerialBT.available()) {
         char cmd = SerialBT.read();
@@ -453,20 +490,27 @@ void processBluetoothCommands() {
                 // Comando de iniciar
                 if (currentState == STATE_IDLE) {
                     if (qtrSensors.isCalibrated()) {
-                        SerialBT.println("[BT] Iniciando em 3 segundos...");
-                        Serial.println("[SISTEMA] Iniciando em 3 segundos...");
-                        for (int i = 3; i > 0; i--) {
-                            Serial.printf("[SISTEMA] %d...\n", i);
-                            SerialBT.printf("%d...\n", i);
-                            digitalWrite(LED_STATUS, HIGH);
-                            delay(500);
-                            digitalWrite(LED_STATUS, LOW);
-                            delay(500);
-                        }
-                        Serial.println("[SISTEMA] GO!");
-                        SerialBT.println("[BT] GO!");
+                        startCountdown();
                         currentState = STATE_RUNNING;
                         linePID.reset();
+                    } else {
+                        Serial.println("[ERRO] Calibre os sensores primeiro!");
+                        SerialBT.println("[BT] Erro: Calibre primeiro (C)");
+                    }
+                } else {
+                    SerialBT.println("[BT] Erro: Robo ja em execucao");
+                }
+                break;
+
+            case 'T':
+            case 't':
+                // Comando de iniciar com mapeamento
+                if (currentState == STATE_IDLE) {
+                    if (qtrSensors.isCalibrated()) {
+                        startCountdown();
+                        currentState = STATE_MAPPING;
+                        linePID.reset();
+                        trackMapper.reset();
                     } else {
                         Serial.println("[ERRO] Calibre os sensores primeiro!");
                         SerialBT.println("[BT] Erro: Calibre primeiro (C)");
@@ -486,6 +530,13 @@ void processBluetoothCommands() {
                 SerialBT.println("[BT] Robo parado!");
                 break;
                 
+            case 'M':
+            case 'm':
+                // Comando de mapa - envia o mapa da pista
+                trackMapper.printMap(Serial);
+                trackMapper.printMap(SerialBT);
+                break;
+
             case 'D':
             case 'd':
                 // Comando de debug - imprime informações
