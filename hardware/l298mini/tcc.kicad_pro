@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.762,
-          "height": 1.524,
-          "width": 1.524
+          "drill": 1.0,
+          "height": 2.0,
+          "width": 2.0
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.1,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.5
+          "min_clearance": 0.6
         }
       },
       "diff_pair_dimensions": [
@@ -455,7 +455,7 @@
     "classes": [
       {
         "bus_width": 12,
-        "clearance": 0.6,
+        "clearance": 0.5,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -472,7 +472,7 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.6,
+        "clearance": 0.5,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -489,7 +489,7 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.6,
+        "clearance": 0.5,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -506,7 +506,7 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.6,
+        "clearance": 0.5,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -530,16 +530,25 @@
       "+3.3V": "3V3",
       "+5V": "5V",
       "+7.5V": "7V4",
-      "BAT": "7V4"
+      "BAT": "7V4",
+      "ML1": "7V4",
+      "ML2": "7V4",
+      "MR1": "7V4",
+      "MR2": "7V4"
     },
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "5V",
+        "pattern": "MR1"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "../../../TCC/gerbertentativa2/",
+      "plot": "./gerber",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "tcc.step",

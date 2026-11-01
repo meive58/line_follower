@@ -544,7 +544,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "../../../TCC/gerbertentativa2/",
+      "plot": "gerber/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "tcc.step",
