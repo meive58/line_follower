@@ -76,12 +76,12 @@
 // Para trás:   IA = LOW, IB = PWM
 
 // Motor Esquerdo
-#define MOTOR_LEFT_IA   4   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_LEFT_IB   15   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IA   2   // Pino IA do motor esquerdo (PWM frente) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_LEFT_IB   4   // Pino IB do motor esquerdo (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Motor Direito
 #define MOTOR_RIGHT_IA  5  // Pino IA do motor direito (PWM frente) - ALTERE CONFORME NECESSÁRIO
-#define MOTOR_RIGHT_IB  19   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
+#define MOTOR_RIGHT_IB  23   // Pino IB do motor direito (PWM trás) - ALTERE CONFORME NECESSÁRIO
 
 // Configurações PWM
 #define PWM_FREQUENCY   20000   // Frequência PWM em Hz (20kHz - fora da faixa audível)
